@@ -3,6 +3,7 @@
 ## Setup
 - Source your AWS credential in your bash profile. The Serverless CLI will find them there.
 - Run `npm install -g serverless`
+- From the root of this repo, run `npm install`
 - Create an app in Slack. Do *NOT* install that app to your team just yet.
 - Navigate to your app, and from the `Basic Configuration` option in the menu on the left, expand the `Add features and functionality` tab.
     + Click `Bots` and give a username for your bot. Make sure the bot is set to be `always online`
