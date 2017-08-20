@@ -1,0 +1,61 @@
+service: heroku-deploy-notify
+
+custom:
+  namespace: ${self:service}-${self:custom.stage}
+  stage: ${opt:stage, self:provider.stage}
+
+provider:
+  name: aws
+  runtime: nodejs4.3
+  stage: dev
+  region: us-east-1
+  environment:
+    CLIENT_ID: '110265570481.228987340530'
+    CLIENT_SECRET: 691979363ad5529d623d7770ed6f4b53
+    INSTALL_SUCCESS_URL: http://google.com
+    INSTALL_ERROR_URL: http://yahoo.com
+    NAMESPACE: ${self:custom.namespace}
+    TEAMS_TABLE: ${self:custom.namespace}-teams
+    WEBHOOK_URL: https://hooks.slack.com/services/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
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource:
+        - arn:aws:dynamodb:*:*:table/${self:provider.environment.TEAMS_TABLE}
+
+functions:
+  # Install the app to your team
+  # Creates a slack bot
+  install:
+    handler: install.handler
+    events:
+      - http:
+          path: install
+          method: get
+  # Listen for deploy messages from heroku
+  heroku:
+    handler: heroku.handler
+    events:
+      - http:
+          # Paste this endpoint in as Heroku's http hook URL.
+          path: deploy
+          method: post
+
+resources:
+  Resources:
+    # Save team info in Dynamo for authentication if we start using events API
+    TeamsDynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.TEAMS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: team_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: team_id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
