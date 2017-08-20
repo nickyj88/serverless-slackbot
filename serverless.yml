@@ -1,22 +1,23 @@
-service: heroku-deploy-notify
+service: serverless-slackbot
 
 custom:
   namespace: ${self:service}-${self:custom.stage}
   stage: ${opt:stage, self:provider.stage}
 
+# Change configurations as desired
 provider:
   name: aws
   runtime: nodejs4.3
-  stage: dev
-  region: us-east-1
+  stage: prod
+  region: us-west-2
   environment:
-    CLIENT_ID: '110265570481.228987340530'
-    CLIENT_SECRET: 691979363ad5529d623d7770ed6f4b53
-    INSTALL_SUCCESS_URL: http://google.com
-    INSTALL_ERROR_URL: http://yahoo.com
+    CLIENT_ID: '' # Fill in the client ID from your slack app here
+    CLIENT_SECRET: # Fill in the client secret from  your slack app here
+    INSTALL_SUCCESS_URL: # LP for successful install
+    INSTALL_ERROR_URL: # LP for failed install
     NAMESPACE: ${self:custom.namespace}
     TEAMS_TABLE: ${self:custom.namespace}-teams
-    WEBHOOK_URL: https://hooks.slack.com/services/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
+    WEBHOOK_URL: # Fill in the url of your slack app here
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -45,7 +46,7 @@ functions:
 
 resources:
   Resources:
-    # Save team info in Dynamo for authentication if we start using events API
+    # Save team info in Dynamo for authentication for future usage (Events API)
     TeamsDynamoDbTable:
       Type: AWS::DynamoDB::Table
       Properties:
